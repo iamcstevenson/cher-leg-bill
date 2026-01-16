@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Bill Search | Cherlynn Stevenson</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -45,21 +45,21 @@
         <div class="bg-white p-8 mb-4 border-2 border-brand-gray shadow-[8px_8px_0px_0px_rgba(28,117,186,0.1)]">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Search Database</label>
+                    <label class="block text-sm font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Search Database</label>
                     <input type="text" id="searchInput" placeholder="Search title or bill number..." 
-                        class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:bg-blue-50 focus:border-brand-blue outline-none transition-all font-bold uppercase placeholder:text-brand-gray" />
+                        class="w-full px-5 py-4 text-lg border-2 border-brand-black rounded-none focus:bg-blue-50 focus:border-brand-blue outline-none transition-all font-bold uppercase placeholder:text-brand-gray" />
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Filter Category</label>
-                    <select id="categoryFilter" class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:border-brand-blue outline-none bg-white font-bold uppercase appearance-none cursor-pointer">
+                    <label class="block text-sm font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Filter Category</label>
+                    <select id="categoryFilter" class="w-full px-5 py-4 text-lg border-2 border-brand-black rounded-none focus:border-brand-blue outline-none bg-white font-bold uppercase appearance-none cursor-pointer">
                         <option value="">All Categories</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <div class="mb-8 px-2 text-[10px] font-bold text-brand-blue uppercase tracking-widest">
+        <div class="mb-8 px-2 text-xs font-bold text-brand-blue uppercase tracking-widest">
             Showing <span id="billCount">0</span> Legislative Records
         </div>
 
@@ -67,10 +67,10 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b-4 border-brand-black">
-                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue w-48">Session</th>
-                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Bill #</th>
-                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Description</th>
-                        <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-widest text-brand-blue">Action</th>
+                        <th class="px-4 py-4 text-sm font-bold uppercase tracking-widest text-brand-blue w-32">Session</th>
+                        <th class="px-4 py-4 text-sm font-bold uppercase tracking-widest text-brand-blue w-40">Bill #</th>
+                        <th class="px-4 py-4 text-sm font-bold uppercase tracking-widest text-brand-blue">Description</th>
+                        <th class="px-4 py-4 text-right text-sm font-bold uppercase tracking-widest text-brand-blue w-48">Action</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -79,7 +79,7 @@
         </div>
 
         <footer class="mt-24 py-12 border-t-2 border-brand-gray">
-            <div class="text-[10px] font-bold text-brand-gray uppercase tracking-[0.3em] text-center">
+            <div class="text-xs font-bold text-brand-gray uppercase tracking-[0.3em] text-center">
                 Paid for by Cherlynn Stevenson For Congress
             </div>
         </footer>
@@ -98,12 +98,8 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     billData = results.data;
-                    console.log("CSV Loaded successfully");
                     populateCategories(billData);
                     filterAndRender(); 
-                },
-                error: function(err) {
-                    console.error("Error loading CSV:", err);
                 }
             });
         });
@@ -112,7 +108,6 @@
             const catSelect = document.getElementById('categoryFilter');
             let categories = new Set();
             data.forEach(row => {
-                // Using new lowercase header name
                 const catStr = row['index_categories'] || row['Index Categories'] || '';
                 catStr.split(/[;\n]/).forEach(p => {
                     const clean = p.trim();
@@ -149,8 +144,14 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-brand-gray hover:bg-blue-50 transition-colors";
                 
-                // Mapped to new CSV column names
-                const session = row['session'] || row['Session'] || '';
+                // Data Mapping
+                let sessionRaw = row['session'] || row['Session'] || '';
+                
+                // --- NEW LOGIC: Split Year and Session Name ---
+                // Extracts the first 4 digits (Year) and the rest (Name)
+                let year = sessionRaw.substring(0, 4); 
+                let sessionName = sessionRaw.substring(4).trim(); 
+
                 const billNum = row['bill_number'] || row['Bill Number'] || row['Bill'] || 'N/A';
                 const title = row['title'] || row['Title'] || '';
                 const url = row['url'] || row['URL'] || '#';
@@ -158,16 +159,23 @@
                 const firstCat = cats.split(/[;\n]/)[0];
 
                 tr.innerHTML = `
-                    <td class="px-4 py-6 text-[11px] font-bold text-brand-gray uppercase tracking-tighter leading-tight">${session}</td>
-                    <td class="px-4 py-6 text-lg font-bold text-brand-blue tracking-tighter">${billNum}</td>
-                    <td class="px-4 py-6">
-                        <div class="text-sm font-bold text-brand-black uppercase leading-tight mb-2">${title}</div>
-                        <div class="inline-block text-[9px] font-bold text-brand-white bg-brand-gray px-2 py-0.5 uppercase tracking-widest">
+                    <td class="px-4 py-6 align-top">
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-bold text-brand-blue leading-none tracking-tight">${year}</span>
+                            <span class="text-[10px] font-bold text-brand-gray uppercase tracking-wider leading-tight mt-1">${sessionName}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-6 align-top">
+                         <span class="text-xl font-bold text-brand-black tracking-tighter">${billNum}</span>
+                    </td>
+                    <td class="px-4 py-6 align-top">
+                        <div class="text-lg font-medium text-brand-black leading-snug mb-3">${title}</div>
+                        <div class="inline-block text-[10px] font-bold text-brand-white bg-brand-gray px-3 py-1 uppercase tracking-widest">
                             ${firstCat || 'General'}
                         </div>
                     </td>
-                    <td class="px-4 py-6 text-right">
-                        <a href="${url}" target="_blank" class="inline-block px-6 py-2 border-2 border-brand-blue text-brand-blue text-[10px] font-bold hover:bg-brand-blue hover:text-white transition-all uppercase tracking-[0.2em]">
+                    <td class="px-4 py-6 text-right align-top">
+                        <a href="${url}" target="_blank" class="inline-block px-8 py-3 border-2 border-brand-blue text-brand-blue text-xs font-bold hover:bg-brand-blue hover:text-white transition-all uppercase tracking-[0.2em]">
                             View Bill
                         </a>
                     </td>
