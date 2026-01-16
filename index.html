@@ -29,7 +29,7 @@
 </head>
 <body class="bg-brand-white text-brand-black min-h-screen font-sans">
 
-    <header class="bg-brand-white border-b-4 border-brand-blue py-10">
+    <header class="bg-brand-white border-b-4 border-brand-blue py-10 shadow-sm">
         <div class="max-w-6xl mx-auto px-6">
             <h1 class="text-5xl font-headline tracking-tight text-brand-blue uppercase leading-none">
                 Cherlynn Stevenson
@@ -42,7 +42,7 @@
 
     <main class="max-w-6xl mx-auto px-6 py-12">
         
-        <div class="bg-white p-8 mb-4 border-2 border-brand-gray shadow-[8px_8px_0px_0px_rgba(28,117,187,0.1)]">
+        <div class="bg-white p-8 mb-4 border-2 border-brand-gray shadow-[8px_8px_0px_0px_rgba(28,117,186,0.1)]">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Search Database</label>
@@ -69,7 +69,7 @@
                     <tr class="border-b-4 border-brand-black">
                         <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue w-48">Session</th>
                         <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Bill #</th>
-                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Summary</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Description</th>
                         <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-widest text-brand-blue">Action</th>
                     </tr>
                 </thead>
@@ -98,8 +98,12 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     billData = results.data;
+                    console.log("CSV Loaded successfully");
                     populateCategories(billData);
-                    filterAndRender(); // Initial render
+                    filterAndRender(); 
+                },
+                error: function(err) {
+                    console.error("Error loading CSV:", err);
                 }
             });
         });
@@ -108,7 +112,8 @@
             const catSelect = document.getElementById('categoryFilter');
             let categories = new Set();
             data.forEach(row => {
-                const catStr = row['Index Categories'] || '';
+                // Using new lowercase header name
+                const catStr = row['index_categories'] || row['Index Categories'] || '';
                 catStr.split(/[;\n]/).forEach(p => {
                     const clean = p.trim();
                     if (clean.length > 2) categories.add(clean);
@@ -127,7 +132,8 @@
 
             const filtered = billData.filter(row => {
                 const textMatch = Object.values(row).some(val => String(val).toLowerCase().includes(term));
-                const catMatch = selectedCat === "" || (row['Index Categories'] && row['Index Categories'].includes(selectedCat));
+                const catValue = row['index_categories'] || row['Index Categories'] || '';
+                const catMatch = selectedCat === "" || catValue.includes(selectedCat);
                 return textMatch && catMatch;
             });
 
@@ -143,20 +149,25 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-brand-gray hover:bg-blue-50 transition-colors";
                 
-                const billNum = row['Bill Number'] || row.Bill || 'N/A';
-                const firstCat = (row['Index Categories'] || '').split(/[;\n]/)[0];
+                // Mapped to new CSV column names
+                const session = row['session'] || row['Session'] || '';
+                const billNum = row['bill_number'] || row['Bill Number'] || row['Bill'] || 'N/A';
+                const title = row['title'] || row['Title'] || '';
+                const url = row['url'] || row['URL'] || '#';
+                const cats = row['index_categories'] || row['Index Categories'] || '';
+                const firstCat = cats.split(/[;\n]/)[0];
 
                 tr.innerHTML = `
-                    <td class="px-4 py-6 text-[11px] font-bold text-brand-gray uppercase tracking-tighter leading-tight">${row.Session || ''}</td>
+                    <td class="px-4 py-6 text-[11px] font-bold text-brand-gray uppercase tracking-tighter leading-tight">${session}</td>
                     <td class="px-4 py-6 text-lg font-bold text-brand-blue tracking-tighter">${billNum}</td>
                     <td class="px-4 py-6">
-                        <div class="text-sm font-bold text-brand-black uppercase leading-tight mb-2">${row.Title || ''}</div>
+                        <div class="text-sm font-bold text-brand-black uppercase leading-tight mb-2">${title}</div>
                         <div class="inline-block text-[9px] font-bold text-brand-white bg-brand-gray px-2 py-0.5 uppercase tracking-widest">
                             ${firstCat || 'General'}
                         </div>
                     </td>
                     <td class="px-4 py-6 text-right">
-                        <a href="${row.URL}" target="_blank" class="inline-block px-6 py-2 border-2 border-brand-blue text-brand-blue text-[10px] font-bold hover:bg-brand-blue hover:text-white transition-all uppercase tracking-[0.2em]">
+                        <a href="${url}" target="_blank" class="inline-block px-6 py-2 border-2 border-brand-blue text-brand-blue text-[10px] font-bold hover:bg-brand-blue hover:text-white transition-all uppercase tracking-[0.2em]">
                             View Bill
                         </a>
                     </td>
