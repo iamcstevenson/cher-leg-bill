@@ -13,15 +13,15 @@
             theme: {
                 extend: {
                     colors: {
-                        'brand-blue': '#1C75BA', // Primary Blue 
-                        'brand-gray': '#B5B5B5', // Primary Gray 
-                        'brand-black': '#000000', // Primary Black 
-                        'brand-white': '#FFFFFF', // Primary White 
+                        'brand-blue': '#1C75BA', // Primary Blue [cite: 12]
+                        'brand-gray': '#B5B5B5', // Primary Gray [cite: 16]
+                        'brand-black': '#000000', // Primary Black [cite: 19]
+                        'brand-white': '#FFFFFF', // Primary White [cite: 25]
                     },
                     fontFamily: {
-                        // Impact for Headlines 
+                        // Impact for Headlines [cite: 17]
                         'headline': ['Impact', 'Haettenschweiler', 'Arial Narrow Bold', 'sans-serif'],
-                        // DIN 2014 Narrow substitute 
+                        // DIN 2014 Narrow substitute [cite: 22]
                         'sans': ['"DIN 2014 Narrow"', '"Barlow Condensed"', 'sans-serif'],
                     },
                 }
@@ -58,13 +58,13 @@
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Search Database</label>
                     <input type="text" id="searchInput" placeholder="Keywords, bill numbers, or topics..." 
-                        class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:bg-blue-50 focus:border-brand-blue outline-none transition-all font-bold uppercase placeholder:text-brand-gray" />
+                        class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:bg-blue-50 focus:border-brand-blue outline-none transition-all font-bold uppercase placeholder:text-brand-gray shadow-sm" />
                 </div>
                 
                 <div>
                     <label class="block text-xs font-bold text-brand-blue uppercase tracking-[0.2em] mb-3">Filter Category</label>
                     <div class="relative">
-                        <select id="categoryFilter" class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:border-brand-blue outline-none bg-white font-bold uppercase appearance-none cursor-pointer">
+                        <select id="categoryFilter" class="w-full px-5 py-3 border-2 border-brand-black rounded-none focus:border-brand-blue outline-none bg-white font-bold uppercase appearance-none cursor-pointer shadow-sm">
                             <option value="">All Categories</option>
                         </select>
                         <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-brand-blue">
@@ -79,7 +79,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b-4 border-brand-black">
-                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Session</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue min-w-[140px]">Session</th>
                         <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Bill #</th>
                         <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-blue">Description</th>
                         <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-widest text-brand-blue">Action</th>
@@ -92,7 +92,7 @@
 
         <footer class="mt-24 py-12 border-t-2 border-brand-gray flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-[10px] font-bold text-brand-gray uppercase tracking-[0.3em]">
-                Paid for by Cherlynn Stevenson For Congress 
+                Paid for by Cherlynn Stevenson For Congress
             </div>
             <div class="text-[10px] font-bold text-brand-gray uppercase tracking-[0.3em]">
                 © 2024 All Rights Reserved
@@ -176,7 +176,7 @@
                 const firstCat = (row['Index Categories'] || '').split(/[;\n]/)[0];
 
                 tr.innerHTML = `
-                    <td class="px-4 py-6 text-sm font-bold text-brand-gray">${row.Session || ''}</td>
+                    <td class="px-4 py-6 text-[11px] font-bold text-brand-gray uppercase tracking-tighter leading-tight">${row.Session || ''}</td>
                     <td class="px-4 py-6 text-lg font-bold text-brand-blue tracking-tighter">${billNum}</td>
                     <td class="px-4 py-6">
                         <div class="text-sm font-bold text-brand-black uppercase leading-tight mb-2">${row.Title || ''}</div>
