@@ -3,54 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stevenson Bills Database</title>
+    <title>Bill Search | Cherlynn Stevenson</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'stevenson-blue': '#002855', // Deep Navy
+                        'stevenson-red': '#E31837',  // Action Red
+                        'stevenson-light': '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-20">
+<body class="bg-stevenson-light min-h-screen">
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="mb-10">
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Legislative Bill Search</h1>
-            <p class="text-slate-600 mt-2">Searchable index of the Stevenson Bills dataset.</p>
+    <header class="bg-stevenson-blue text-white py-10 shadow-lg border-b-4 border-stevenson-red">
+        <div class="max-w-6xl mx-auto px-6">
+            <h1 class="text-4xl font-extrabold tracking-tight italic uppercase">Cherlynn Stevenson</h1>
+            <div class="h-1 w-20 bg-stevenson-red mt-2 mb-4"></div>
+            <p class="text-blue-100 text-xl font-light">Legislative Bill Tracking & Transparency Portal</p>
         </div>
+    </header>
 
-        <div class="sticky top-4 z-10 mb-8">
-            <div class="relative shadow-xl rounded-lg overflow-hidden">
-                <input type="text" id="searchInput" 
-                    placeholder="Search by keyword, bill number, or category..." 
-                    class="w-full px-6 py-4 text-lg border-none focus:ring-2 focus:ring-blue-500 outline-none" />
-                <div id="loadingIndicator" class="absolute right-4 top-4 text-blue-500 font-bold">
-                    Loading Data...
+    <main class="max-w-6xl mx-auto px-6 -mt-8">
+        
+        <div class="bg-white p-6 rounded-xl shadow-xl border border-slate-200 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Search Bills</label>
+                    <input type="text" id="searchInput" placeholder="Search by keyword, title, or bill #..." 
+                        class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-stevenson-blue focus:outline-none transition-all" />
                 </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Filter by Category</label>
+                    <select id="categoryFilter" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-stevenson-blue focus:outline-none bg-white">
+                        <option value="">All Categories</option>
+                        </select>
+                </div>
+            </div>
+            <div id="loadingIndicator" class="mt-4 text-sm text-stevenson-red font-bold animate-pulse">
+                Loading legislative data...
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-800 text-white">
-                        <tr>
-                            <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Session</th>
-                            <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Bill</th>
-                            <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Categories</th>
-                            <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Link</th>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Session</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Bill</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Title & Category</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-200">
+                    <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-700">
                         </tbody>
                 </table>
             </div>
         </div>
-    </div>
+
+        <footer class="mt-12 mb-20 text-center text-slate-400 text-sm">
+            <p>© Cherlynn Stevenson. Data provided for public information purposes.</p>
+        </footer>
+    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
         let billData = [];
-        const CSV_URL = 'data.csv'; // <--- CHANGE THIS to your actual filename in the repo
+        const CSV_URL = 'data.csv'; // Ensure your file is named data.csv in GitHub
 
-        // 1. Auto-fetch the CSV file when page loads
+        // Load Data
         window.addEventListener('DOMContentLoaded', () => {
             Papa.parse(CSV_URL, {
                 download: true,
@@ -59,53 +92,82 @@
                 complete: function(results) {
                     billData = results.data;
                     document.getElementById('loadingIndicator').classList.add('hidden');
-                    renderTable(billData);
-                },
-                error: function(err) {
-                    document.getElementById('loadingIndicator').innerText = "Error loading data.";
-                    console.error(err);
+                    populateCategories(billData);
+                    filterAndRender();
                 }
             });
         });
 
-        // 2. Search Logic
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = billData.filter(row => {
-                return Object.values(row).some(val => String(val).toLowerCase().includes(term));
-            });
-            renderTable(filtered);
-        });
+        // Extract and display unique categories
+        function populateCategories(data) {
+            const catSelect = document.getElementById('categoryFilter');
+            let categories = new Set();
 
-        // 3. UI Rendering
+            data.forEach(row => {
+                if (row['Index Categories']) {
+                    // Split categories (common in legislative CSVs: split by semicolon or newline)
+                    const parts = row['Index Categories'].split(/[;\n]/);
+                    parts.forEach(p => {
+                        const clean = p.trim();
+                        if (clean.length > 2) categories.add(clean);
+                    });
+                }
+            });
+
+            // Sort and add to dropdown
+            Array.from(categories).sort().forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                catSelect.appendChild(opt);
+            });
+        }
+
+        // Combined Filter Logic
+        function filterAndRender() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCat = document.getElementById('categoryFilter').value;
+
+            const filtered = billData.filter(row => {
+                const textMatch = Object.values(row).some(val => String(val).toLowerCase().includes(searchTerm));
+                const categoryMatch = selectedCat === "" || (row['Index Categories'] && row['Index Categories'].includes(selectedCat));
+                return textMatch && categoryMatch;
+            });
+
+            renderTable(filtered);
+        }
+
+        // Listen for changes
+        document.getElementById('searchInput').addEventListener('input', filterAndRender);
+        document.getElementById('categoryFilter').addEventListener('change', filterAndRender);
+
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 font-medium">No matches found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">No matching bills found. Try a different search term.</td></tr>';
                 return;
             }
 
             data.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/50 transition-colors duration-150";
+                tr.className = "hover:bg-slate-50 transition-colors group";
                 
-                // Clean up categories (they are often semicolon separated in CSVs)
-                const categories = row['Index Categories'] ? row['Index Categories'].split(';')[0] : 'General';
-
+                const billNum = row['Bill Number'] || row.Bill || 'N/A';
+                
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${row.Session || ''}</td>
-                    <td class="px-6 py-4 text-sm font-bold text-blue-700 whitespace-nowrap">${row['Bill Number'] || row.Bill || ''}</td>
-                    <td class="px-6 py-4 text-sm text-slate-800 leading-relaxed">${row.Title || ''}</td>
-                    <td class="px-6 py-4 text-sm text-slate-500">
-                         <span class="inline-block bg-slate-100 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tight text-slate-600">
-                            ${categories}
-                         </span>
+                    <td class="px-6 py-5 text-sm font-medium text-slate-400">${row.Session || ''}</td>
+                    <td class="px-6 py-5 text-sm font-bold text-stevenson-blue">${billNum}</td>
+                    <td class="px-6 py-5">
+                        <div class="text-sm font-semibold text-slate-800 mb-1">${row.Title || ''}</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">
+                            ${(row['Index Categories'] || '').split(/[;\n]/)[0]}
+                        </div>
                     </td>
-                    <td class="px-6 py-4 text-sm">
-                        <a href="${row.URL}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm text-xs font-bold">
-                            View ↗
+                    <td class="px-6 py-5 text-right">
+                        <a href="${row.URL}" target="_blank" class="inline-block px-4 py-2 bg-stevenson-blue text-white text-xs font-bold rounded hover:bg-stevenson-red transition-colors shadow-sm uppercase tracking-widest">
+                            Official Link
                         </a>
                     </td>
                 `;
